@@ -13,7 +13,10 @@ After setup, run `composer install` and run migrations `php artisan migrate`
 Please run `php artisan db:seed --class=ProductCategorySeeder` after running migrations.
 
 # npm
-This prorject uses npm. Please run `npm install` and  `npm run build` for frontend compilations.
+This project uses npm. Please run `npm install` and  `npm run build` for frontend compilations.
+
+# App
+After registration/login, shop can be accessed at `/shop/product` e.g `http://localhost:8085/shop/product`
 
 
 
