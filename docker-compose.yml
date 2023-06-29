@@ -1,0 +1,35 @@
+version: '2.2'
+
+services:
+  tinyweb:
+    build: ./build/app
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - 8085:80
+    container_name: tiny
+    networks:
+      - dock_default
+  tinydb:
+    build: ./build/db
+    volumes:
+      - mysql:/var/lib/mysql
+    ports:
+      - 3308:3306
+    container_name: tinydb
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "laravel"
+      #MYSQL_USER: "myuser"
+      #MYSQL_PASSWORD: "mypass"
+    cpu_count: 2
+    cpu_percent: 50
+    mem_limit: 3000m
+    networks:
+      - dock_default
+volumes:
+  mysql:
+
+networks:
+  dock_default:
+    external: true
