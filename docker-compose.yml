@@ -39,4 +39,3 @@ volumes:
 
 networks:
   dock_default:
-    external: true
