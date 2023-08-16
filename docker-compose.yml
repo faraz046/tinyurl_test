@@ -8,6 +8,11 @@ services:
     ports:
       - 8085:80
     container_name: tiny
+    deploy:
+      resources:
+        limits:
+          cpus: '3'
+          memory: 4G
     networks:
       - dock_default
   tinydb:
@@ -22,9 +27,11 @@ services:
       MYSQL_DATABASE: "laravel"
       #MYSQL_USER: "myuser"
       #MYSQL_PASSWORD: "mypass"
-    cpu_count: 2
-    cpu_percent: 50
-    mem_limit: 3000m
+    deploy:
+      resources:
+        limits:
+          cpus: '4' 
+          memory: 6G  
     networks:
       - dock_default
 volumes:

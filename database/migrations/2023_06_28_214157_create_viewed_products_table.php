@@ -20,8 +20,7 @@ return new class extends Migration
             $table->timestamps();
 
             //index 
-            $table->index('user_id');
-            $table->index('product_id');
+            $table->index(['user_id', 'product_id'], 'user_product_index');
 
         });
     }

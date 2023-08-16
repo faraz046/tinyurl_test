@@ -58,6 +58,7 @@ Route::group([
         Route::get('/', [ShopController::class, 'listCategories'])->name('list');
         Route::get('/create', [CategoryController::class, 'create'])->name('create');
         Route::post('/create', [CategoryController::class, 'store'])->name('store');
+        Route::get('/search/{search}', [CategoryController::class, 'search'])->name('search');
         Route::get('/{category}', [ShopController::class, 'listCategoryProducts'])->name('show');
     });
 });

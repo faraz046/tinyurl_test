@@ -22,6 +22,12 @@ RUN pecl install -o -f redis \
 &&  rm -rf /tmp/pear \
 &&  docker-php-ext-enable redis
 
+### install opcache
+COPY ./config/php.ini /usr/local/etc/php/php.ini
+COPY ./config/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
+
+RUN docker-php-ext-install opcache
+
 ### Installl Node
 RUN curl -sL https://deb.nodesource.com/setup_16.x | bash
 RUN apt-get install --yes nodejs

@@ -21,11 +21,19 @@
                             </div>
                             <div class="mb-4">
                                 <label for="categories" class="block font-medium">Categories</label>
-                                <select id="categories" v-model="editForm.categories" class="input-field" multiple>
-                                    <option v-for="(category, index) in categories" :key="index" :value="category.id">
-                                        {{ category.name }}
-                                    </option>
-                                </select>
+                                <Multiselect
+                                    v-model="editForm.categories"
+                                    placeholder="Type to search"
+                                    :filter-results="false"
+                                    :min-chars="1"
+                                    :resolve-on-load="false"
+                                    :delay="0"
+                                    :searchable="true"
+                                    mode="multiple"
+                                    :options="async function(query) {
+                                        return await searchCategories(query) // check JS block for implementation
+                                    }"
+                                />
                                 <p v-if="editForm.errors.categories" class="text-red-500 mt-1">{{ editForm.errors.categories }}</p>
                             </div>
                             <div class="mb-4">
@@ -54,6 +62,7 @@
 <script>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
+import Multiselect from '@vueform/multiselect'
 
 
 
@@ -66,6 +75,7 @@ export default {
     components: {
         AuthenticatedLayout,
         Head,
+        Multiselect,
     },
     data() {
         return {
@@ -96,6 +106,16 @@ export default {
                     });
                 },
             });
+        },
+        async searchCategories(search) {
+            const { data } = await axios.get(route("shop.category.search", { search: search }), {
+                params: {
+                    search,
+                },
+            });
+
+            return data;
+
         },
         cancel() {
             this.$inertia.visit(route("shop.product.show", this.product.id));
@@ -131,3 +151,4 @@ export default {
         color: white;
     }
 </style>
+<style src="@vueform/multiselect/themes/default.css"></style>

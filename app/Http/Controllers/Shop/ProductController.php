@@ -29,10 +29,7 @@ class ProductController extends Controller
 
     //create product
     public function create() {
-        $categories = $this->productService->listCategories();
-        return inertia('Shop/Products/Create', [
-            'categories' => $categories,
-        ]);
+        return inertia('Shop/Products/Create');
     }
 
     //store product
@@ -44,10 +41,8 @@ class ProductController extends Controller
     //edit product
     public function edit($id) {
         $product = $this->productService->getProduct($id);
-        $categories = $this->productService->listCategories();
         return inertia('Shop/Products/Edit', [
-            'product' => $product,
-            'categories' => $categories,
+            'product' => $product
         ]);
     }
 

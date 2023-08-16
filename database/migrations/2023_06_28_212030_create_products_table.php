@@ -24,8 +24,10 @@ return new class extends Migration
 
             //index
             $table->index(['name']);
-            $table->index(['top']);
             $table->index(['price']);
+            $table->index(['created_at']);
+            $table->index(['deleted_at']);
+            $table->index(['top', 'deleted_at']);
         });
     }
 

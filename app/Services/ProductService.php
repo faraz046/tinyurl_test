@@ -7,37 +7,62 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class ProductService
 {
 
     public function listProducts($limit = 10, $category = null, $sort = null) {
 
-        return Product::select('products.id', 'products.name', 'products.price', 'products.description')
-                ->join('product_categories', 'products.id', '=', 'product_categories.product_id')
-                ->join('categories', 'product_categories.category_id', '=', 'categories.id')
-                ->when($category, function($query, $category) {
-                    return $query->where('categories.id', $category);
-                })
-                ->when($sort, function($query, $sort) {
-                    if($sort == 'price_asc') {
-                        return $query->orderBy('products.price', 'asc');
-                    } else if($sort == 'price_desc') {
-                        return $query->orderBy('products.price', 'desc');
-                    } else if($sort == 'name_asc') {
-                        return $query->orderBy('products.name', 'asc');
-                    } else if($sort == 'name_desc') {
-                        return $query->orderBy('products.name', 'desc');
-                    } else if($sort == 'latest') {
-                        return $query->orderBy('products.created_at', 'desc');
-                    } else if($sort == 'category_asc') {
-                        return $query->orderBy('categories.name', 'asc');
-                    } else if($sort == 'category_desc') {
-                        return $query->orderBy('categories.name', 'desc');
-                    }
-                })
-                ->groupBy('products.id', 'products.name', 'products.price', 'products.description')
-                ->paginate($limit);
+        if(strpos($sort, 'category') !== false || $category) {
+            //if sorting by category or filtering by category, use the materialized view table
+            $data = DB::table('mv_products_by_category')
+                    ->distinct('id')
+                    ->select('id')
+                    ->when($category, function($query, $category) {
+                        return $query->where('category_id', $category);
+                    })
+                    ->when($sort, function($query, $sort) {
+                        if($sort == 'category_desc') {
+                            return $query->orderBy('category_name', 'desc');
+                        } else if ($sort == 'category_asc') {
+                            return $query->orderBy('category_name', 'asc');
+                        } else if ($sort == 'price_asc') {
+                            return $query->orderBy('price', 'asc');
+                        } else if($sort == 'price_desc') {
+                            return $query->orderBy('price', 'desc');
+                        } else if($sort == 'name_asc') {
+                            return $query->orderBy('product_name', 'asc');
+                        } else if($sort == 'name_desc') {
+                            return $query->orderBy('product_name', 'desc');
+                        } else if($sort == 'latest') {
+                            return $query->orderBy('created_at', 'desc');
+                        }
+                    })
+                    ->simplePaginate($limit);
+
+                $data->setCollection(
+                    Product::whereIn('id', $data->pluck('id'))->get()
+                );
+        }
+        else
+        {
+            $data = Product::when($sort, function($query, $sort) {
+                        if($sort == 'price_asc') {
+                            return $query->orderBy('price', 'asc');
+                        } else if($sort == 'price_desc') {
+                            return $query->orderBy('price', 'desc');
+                        } else if($sort == 'name_asc') {
+                            return $query->orderBy('products.name', 'asc');
+                        } else if($sort == 'name_desc') {
+                            return $query->orderBy('products.name', 'desc');
+                        } else if($sort == 'latest') {
+                            return $query->orderBy('created_at', 'desc');
+                        }
+                    })
+                    ->simplePaginate($limit);   
+        }
+        return $data;
 
     }
 
@@ -94,6 +119,7 @@ class ProductService
         //cache top products for 1 day
         return Cache::remember('top_products', 1440, function () {
             return Product::where('top', true)
+                ->select('id', 'name', 'price', 'description')
                 ->limit(20)
                 ->orderBy('created_at', 'desc')
                 ->get();

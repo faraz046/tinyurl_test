@@ -21,7 +21,7 @@
                                     <ul class="">
                                         <li
                                             class="text-gray-700 py-1 px-2 mr-2 text-sm underline cursor-pointer"
-                                            v-for="(category, index) in categories"
+                                            v-for="(category, index) in categoryList"
                                             :key="index"
                                             @click="navigateToCategory(category.id)"
                                             >
@@ -33,6 +33,14 @@
                         </div>
                     </div>
 
+                    <paginator 
+                        :to="categories.to"
+                        :total="categories.total"
+                        :from="categories.from"
+                        :prevPageUrl="prevPageUrl"
+                        :nextPageUrl="nextPageUrl"
+                    ></paginator>
+
                     
                 </div>
             </div>
@@ -42,19 +50,23 @@
 
 <script>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import Paginator from '@/Pages/Shop/Partials/Paginator.vue';
 import { Head } from '@inertiajs/vue3';
 
 export default {
     name: 'CategoryList',
     props: {
-        categories: Array,
+        categories: Object,
     },
     components: {
         AuthenticatedLayout,
         Head,
+        Paginator,
     },
     data() {
-        
+        return {
+            categoryList: this.categories.data,
+        };
     },
     methods: {
         navigateToCategory(categoryId) {
@@ -62,7 +74,12 @@ export default {
         },
     },
     computed: {
-        
+        nextPageUrl() {
+            return this.categories.next_page_url ? this.categories.next_page_url + '&sort=' + this.sortBy : null;
+        },
+        prevPageUrl() {
+            return this.categories.prev_page_url ? this.categories.prev_page_url + '&sort=' + this.sortBy : null;
+        },
     },
 }
 </script>

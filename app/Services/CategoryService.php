@@ -3,17 +3,14 @@
 namespace App\Services;
 
 use App\Models\Category;
+use Illuminate\Support\Facades\DB;
 
 class CategoryService
 {
 
     public function listCategories($limit = null) {
-        return Category::
-                when($limit, function($query, $limit) {
-                    return $query->limit($limit);
-                })
-                ->orderBy('name', 'asc')
-                ->get();
+        return Category::orderBy('name', 'asc')
+                ->simplePaginate($limit);
     }
 
     public function getCategory($id) : Category {
@@ -26,6 +23,14 @@ class CategoryService
         $category->save();
 
         return $category;
+    }
+
+    public function searchCategories($search, $limit = 20) {
+        return DB::table('categories')->where('name', 'like', "$search%")
+                ->orderBy('name', 'asc')
+                ->limit($limit)
+                ->select('id AS value', 'name AS label')
+                ->get();
     }
 
 }

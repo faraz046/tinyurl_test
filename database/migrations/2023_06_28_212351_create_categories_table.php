@@ -20,7 +20,7 @@ return new class extends Migration
             $table->softDeletes();
 
             //index
-            $table->index(['name']);
+            $table->index(['name', 'deleted_at']);
         });
     }
 
